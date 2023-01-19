@@ -20,7 +20,12 @@ enum State {
 
 class ViewController: UIViewController, UITextFieldDelegate {
     
-    var mode: Mode = .flashCard
+    var mode: Mode = .flashCard {
+        didSet {
+            updateUI()
+        }
+    }
+
     var state: State = .question
     // Quiz-specific state
     var answerIsCorrect = false
@@ -51,10 +56,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         updateUI()
     }
     // Updates the app's UI in flash card mode.
-    func updateFlashCardUI() {
-        let elementName = elementList[currentElementIndex]
-        let image = UIImage(named: elementName)
-        imageView.image = image
+    func updateFlashCardUI(elementName: String) {
+        // Text field and keyboard
+        textField.isHidden = true
+        textField.resignFirstResponder()
+        // Answer label
         if state == .answer {
             answerLabel.text = elementName
         }
@@ -64,25 +70,38 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     // Updates the app's UI in quiz mode.
-    func updateQuizUI() {
+    func updateQuizUI(elementName: String) {
+        textField.isHidden = false
+        switch state {
+        case .question:
+            textField.text = ""
+            textField.becomeFirstResponder()
+        case .answer: textField.resignFirstResponder()
+        } // Answer label
         switch state {
         case .question:
             answerLabel.text = ""
         case .answer:
             if answerIsCorrect {
-                print("Correct!")
+                answerLabel.text = "Correct!"
             }
             else {
-                print("❌")
+                answerLabel.text = "❌"
             }
         }
     }
+
     
     func updateUI() {
+        // Shared code: updating the image
+        let elementName = elementList[currentElementIndex]
+        let image = UIImage(named: elementName)
+        imageView.image = image
+
         switch mode
         {
-            case.flashCard: updateFlashCardUI()
-            case.quiz: updateQuizUI()
+            case.flashCard: updateFlashCardUI(elementName: elementName)
+            case.quiz: updateQuizUI(elementName: elementName)
         }
     }
     
@@ -97,6 +116,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBAction func showAnswer(_ sender: Any) {
         state = .answer
         updateUI()
+    }
+    @IBAction func switchModes(_ sender: Any) {
+        if modeSelector.selectedSegmentIndex == 0 {
+               mode = .flashCard
+        }
+        else {
+            mode = .quiz
+        }
     }
     @IBAction func next(_ sender: Any) {
         currentElementIndex += 1
