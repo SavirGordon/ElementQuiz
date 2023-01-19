@@ -53,11 +53,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        updateUI()
+        updateFlashCardUI()
+        updateQuizUI()
     }
     // Updates the app's UI in flash card mode.
-    func updateFlashCardUI(elementName: String) {
+    func updateFlashCardUI() {
         // Text field and keyboard
+        let elementName = elementList[currentElementIndex]
+        let image = UIImage(named: elementName)
+        imageView.image = image
         textField.isHidden = true
         textField.resignFirstResponder()
         // Answer label
@@ -70,7 +74,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     // Updates the app's UI in quiz mode.
-    func updateQuizUI(elementName: String) {
+    func updateQuizUI() {
         textField.isHidden = false
         switch state {
         case .question:
@@ -94,14 +98,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     func updateUI() {
         // Shared code: updating the image
-        let elementName = elementList[currentElementIndex]
-        let image = UIImage(named: elementName)
-        imageView.image = image
+    
 
-        switch mode
-        {
-            case.flashCard: updateFlashCardUI(elementName: elementName)
-            case.quiz: updateQuizUI(elementName: elementName)
+        switch mode {
+            case.flashCard:
+                updateFlashCardUI()
+            case .quiz:
+                    updateQuizUI()
+            
         }
     }
     
@@ -113,6 +117,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var modeSelector: UISegmentedControl!
     @IBOutlet var textField: UITextField!
     @IBOutlet var answerLabel: UILabel!
+    
     @IBAction func showAnswer(_ sender: Any) {
         state = .answer
         updateUI()
@@ -131,6 +136,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
             currentElementIndex = 0
         }
         state = .question
-        updateUI()
+        updateFlashCardUI()
     }
 }
